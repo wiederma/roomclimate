@@ -89,9 +89,8 @@ def main():
 			for line in sys.stdin:
 				data = json.decode(line)
 
-				print(data, end="")
-#
-#				db.write_points(data)
+				db_client.write_points(data)
+
 		except Exception as e:
 			print(e, file=sys.stderr)
 			continue

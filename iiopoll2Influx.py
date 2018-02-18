@@ -62,32 +62,114 @@ def main():
 		default='',
 		help='the passwort for the specified user to access the InfluxDB',
 	)
+	parser.add_argument(
+		'--testing',
+		action='store_true',
+		default=False,
+		help='enabling testing mode without writing to InfluxDB',
+	)
 	args = parser.parse_args()
 #
 # Try to establish a DB connection
 #
-	try:
-		db_client = InfluxDBClient(
-		args.db_host,
-		args.db_port,
-		args.db_user,
-		args.db_password,
-		args.db_name
-	)
-	except Exception as e:
-		print(e, file=sys.stderr)
-		raise OSError('connection to InfluxDB cannot be established!')
+	if args.testing == True:
+		print('testing mode, no DB used ...', file=sys.stderr)
+	else:
+		print('connection to InfluxDB ...', file=sys.stderr)
+		try:
+			print('db_host: ' + args.db_host, file=sys.stderr)
+			print('db_name: ' + args.db_name, file=sys.stderr)
+			db_client = InfluxDBClient(
+			args.db_host,
+			args.db_port,
+			args.db_user,
+			args.db_password,
+			args.db_name
+		)
+		except Exception as e:
+			print(e, file=sys.stderr)
+			raise OSError('connection to InfluxDB cannot be established!')
 
-	print('connection to InfluxDB is established', file=sys.stderr)
-	print('...waiting for incomming data', file=sys.stderr)
+		print('... connection established', file=sys.stderr)
+		print('... waiting for incomming data', file=sys.stderr)
 
 #
 # read from stdin and write to InfluxDB
 #
+
+# json_body = [
+#         {
+#             "measurement": "cpu_load_short",
+#             "tags": {
+#                 "host": "server01",
+#                 "region": "us-west"
+#             },
+#             "time": "2009-11-10T23:00:00Z",
+#             "fields": {
+#                 "Float_value": 0.64,
+#                 "Int_value": 3,
+#                 "String_value": "Text",
+#                 "Bool_value": True
+#             }
+#         }
+#     ]
+
+# {
+# 	"location": "wohnzimmer",
+# 	"sensor": "dht11@0",
+# 	"host": "the-crowsnest",
+
+# 	"time": "2018-02-18T17:21:46.617120",
+
+# 	"temperature": "18000",
+# 	"pressure": null,
+# 	"humidity_relative": "45000"
+# }
+
 	while True:
 		try:
 			for line in sys.stdin:
-				db_client.write_points(line)
+				# json.loads is for loading from strings
+				# json.load is for loading form other resources
+				data = json.loads(line)
+
+				myhost			= data['host']
+				mysensor		= data['sensor']
+				mylocation		= data['location']
+				mytime			= data['time']
+				mytemperature	= float(int(data['temperature'])/100)
+				myhumidity		= float(int(data['humidity_relative'])/100)
+				mypressure		= int(data['pressure'])
+
+				json_body = [
+					{
+						"measurement": "roomclimate",
+						"tags": {
+							"host": myhost,
+							"sensor": mysensor,
+							"location": mylocation,
+						},
+						"time": mytime,
+						"fields": {
+							"temperature": mytemperature,
+							"humidity_relative": myhumidity,
+							"pressure": mypressure,
+						},
+					}
+				]
+
+				if args.testing == True:
+					print("host:"		+ myhost, file=sys.stderr)
+					print("sensor:"		+ mysensor, file=sys.stderr)
+					print("location:"	+ mylocation, file=sys.stderr)
+					print("time:"		+ mytime, file=sys.stderr)
+					print("temperature:"+ mytemperature, file=sys.stderr)
+					print("humidity_relative:"+ myhumidity, file=sys.stderr)
+					print("pressure:"	+ mypressure, file=sys.stderr)
+					print("\n", file=sys.stderr)
+					#print(json_body, file=sys.stderr)
+				else:
+					db_client.write_points(json_body)
 
 		except Exception as e:
 			print(e, file=sys.stderr)

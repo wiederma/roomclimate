@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 '''
+Requires python3 package for influxDB to import InfluxDBClient:
+sudo apt install python3-influxdb
+
 API documentation for python InfluxDBClient:
 https://influxdb-python.readthedocs.io/en/latest/api-documentation.html#
 
@@ -84,9 +87,11 @@ def main():
 	while True:
 		try:
 			for line in sys.stdin:
-				print(line, end="")
-#					data = json.decode(line)
-#			db.write_points(data)
+				data = json.decode(line)
+
+				print(data, end="")
+#
+#				db.write_points(data)
 		except Exception as e:
 			print(e, file=sys.stderr)
 			continue

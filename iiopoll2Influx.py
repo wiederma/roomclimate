@@ -36,6 +36,7 @@ def main():
 	parser.add_argument(
 		'--db_name',
 		type=str,
+		default='',
 		help='the name of the InfluxDB data is written to',
 	)
 	parser.add_argument(
@@ -132,18 +133,36 @@ def main():
 				# json.loads is for loading from strings
 				# json.load is for loading form other resources
 				data = json.loads(line)
-
+				mymeasurement	= "roomclimate"
 				myhost			= data['host']
 				mysensor		= data['sensor']
 				mylocation		= data['location']
 				mytime			= data['time']
-				mytemperature	= float(int(data['temperature'])/100)
-				myhumidity		= float(int(data['humidity_relative'])/100)
-				mypressure		= int(data['pressure'])
+
+				if data['temperature'] != None:
+					mytemperature = int(data['temperature'])
+					if mytemperature > 100:
+						mytemperature = float(mytemperature/1000)
+				else:
+					mytemperature = 'null'
+
+				if data['humidity_relative'] != None:
+					myhumidity = float(data['humidity_relative'])
+					if myhumidity > 100:
+						myhumidity = float(myhumidity/1000)
+				else:
+					myhumidity = 'null'
+
+				if data['pressure'] != None:
+					mypressure = float(data['pressure'])
+					if mypressure > 100:
+						mypressure = float(mypressure/1000)
+				else:
+					mypressure	= 'null'
 
 				json_body = [
 					{
-						"measurement": "roomclimate",
+						"measurement": mymeasurement,
 						"tags": {
 							"host": myhost,
 							"sensor": mysensor,
@@ -159,13 +178,14 @@ def main():
 				]
 
 				if args.testing == True:
+					print("measurement:"+ mymeasurement, file=sys.stderr)
 					print("host:"		+ myhost, file=sys.stderr)
 					print("sensor:"		+ mysensor, file=sys.stderr)
 					print("location:"	+ mylocation, file=sys.stderr)
 					print("time:"		+ mytime, file=sys.stderr)
-					print("temperature:"+ mytemperature, file=sys.stderr)
-					print("humidity_relative:"+ myhumidity, file=sys.stderr)
-					print("pressure:"	+ mypressure, file=sys.stderr)
+					print("temperature:"+ str(mytemperature), file=sys.stderr)
+					print("humidity_relative:"+ str(myhumidity), file=sys.stderr)
+					print("pressure:"	+ str(mypressure), file=sys.stderr)
 					print("\n", file=sys.stderr)
 					#print(json_body, file=sys.stderr)
 				else:

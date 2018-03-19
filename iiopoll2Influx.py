@@ -139,25 +139,33 @@ def main():
 				mylocation		= data['location']
 				mytime			= data['time']
 
+				# sensor readings are pushed to database as they are
+				# further processing needs to be done by display / grafana
+
 				if data['temperature'] != None:
 					mytemperature = int(data['temperature'])
-					if mytemperature > 100:
-						mytemperature = float(mytemperature/1000)
 				else:
+					# catch edge case, if sensor has no temperature
 					mytemperature = 'null'
 
 				if data['humidity_relative'] != None:
-					myhumidity = float(data['humidity_relative'])
-					if myhumidity > 100:
-						myhumidity = float(myhumidity/1000)
+					# BME280 Sensor has humidity_relative data as float
+					if mysensor == 'bme280':
+						myhumidity = float(data['humidity_relative'])
+					else:
+						myhumidity = int(data['humidity_relative'])
 				else:
+					# catch edge case, if sensor has no humidity_relative
 					myhumidity = 'null'
 
 				if data['pressure'] != None:
-					mypressure = float(data['pressure'])
-					if mypressure > 100:
-						mypressure = float(mypressure/1000)
+					# BME280 Sensor has pressure data as float
+					if mysensor == 'bme280':
+						mypressure = float(data['pressure'])
+					else:
+						mypressure = int(data['pressure'])
 				else:
+					# catch edge case, if sensor has no pressure
 					mypressure	= 'null'
 
 				json_body = [

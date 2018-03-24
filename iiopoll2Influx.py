@@ -151,7 +151,7 @@ def main():
 				if data['humidity_relative'] != None:
 					# BME280 Sensor has humidity_relative data as float
 					if mysensor == 'bme280':
-						myhumidity = float(data['humidity_relative'])
+						myhumidity = int(float(data['humidity_relative'])*1000)
 					else:
 						myhumidity = int(data['humidity_relative'])
 				else:
@@ -161,7 +161,7 @@ def main():
 				if data['pressure'] != None:
 					# BME280 Sensor has pressure data as float
 					if mysensor == 'bme280':
-						mypressure = float(data['pressure'])
+						mypressure = int(float(data['pressure'])*1000)
 					else:
 						mypressure = int(data['pressure'])
 				else:

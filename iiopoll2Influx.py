@@ -146,7 +146,7 @@ def main():
 					mytemperature = int(data['temperature'])
 				else:
 					# catch edge case, if sensor has no temperature
-					mytemperature = 'null'
+					mytemperature = 0
 
 				if data['humidity_relative'] != None:
 					# BME280 Sensor has humidity_relative data as float
@@ -156,7 +156,7 @@ def main():
 						myhumidity = int(data['humidity_relative'])
 				else:
 					# catch edge case, if sensor has no humidity_relative
-					myhumidity = 'null'
+					myhumidity = 0
 
 				if data['pressure'] != None:
 					# BME280 Sensor has pressure data as float
@@ -166,7 +166,7 @@ def main():
 						mypressure = int(data['pressure'])
 				else:
 					# catch edge case, if sensor has no pressure
-					mypressure	= 'null'
+					mypressure = 0
 
 				json_body = [
 					{

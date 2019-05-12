@@ -148,15 +148,16 @@ def main():
 					# catch edge case, if sensor has no temperature
 					mytemperature = 0
 
-				if data['humidity_relative'] != None:
-# 2019-02-06: nach update hat der BME280 die Luftfeuchtigkeit im passend$
-#                                       if mysensor == 'bme280':
-#                                               myhumidity = int(float(d$
-#                                       else:
-                                        myhumidity = int(data['humidity_$
-				else:
-					# catch edge case, if sensor has no humidity_relative
-					myhumidity = 0
+                if data['humidity_relative'] != None:
+                        # BME280 Sensor has humidity_relative data as float
+# 2019-02-06: nach update hat der BME280 die Luftfeuchtigkeit im passenden Format, *1000 nun nicht mehr erforderlich
+#                    if mysensor == 'bme280':
+#                        myhumidity = int(float(data['humidity_relative'])*1000)
+#                    else:
+                        myhumidity = int(data['humidity_relative'])
+                else:
+                        # catch edge case, if sensor has no humidity_relative
+                        myhumidity = 0
 
 				if data['pressure'] != None:
 					# BME280 Sensor has pressure data as float
